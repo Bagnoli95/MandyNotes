@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mandy_notes/class/colores.dart';
+import 'package:mandy_notes/pages/account/user_page.dart';
 import 'package:mandy_notes/pages/calendar/calendar_main.dart';
 
 class MyHomeScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     Container(color: Colors.orange),
     Container(color: Colors.yellow),
     HeatMapCalendarExample(),
-    Container(color: Colors.blue),
+    MyAccountUser(),
   ];
 
   @override
@@ -34,7 +35,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
         backgroundColor: myColores().rose_300,
       ),
       bottomNavigationBar: myButtonNavigatorBar(),
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: Container(
           height: double.maxFinite,
           color: Colors.amber,

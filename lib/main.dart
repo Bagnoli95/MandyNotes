@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mandy_notes/pages/onboard/onboard_main.dart';
 // import 'package:mandy_notes/pages/calendar/calendar_main.dart';
 
 import 'pages/home/home_main.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomeScreen(),
+      home: OnboardingPage(),
     );
   }
 }
