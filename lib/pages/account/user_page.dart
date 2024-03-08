@@ -20,7 +20,7 @@ class _MyAccountUserState extends State<MyAccountUser> {
         myButton(
             texto: 'Cerrar sesión',
             accion: () {
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginPage(), maintainState: true), (Route<dynamic> route) => false);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MyLoginPage(), maintainState: true), (Route<dynamic> route) => false);
             }),
       ],
     );

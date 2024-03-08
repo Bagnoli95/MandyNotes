@@ -1,108 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:mandy_notes/pages/auth/login_page.dart';
-import 'package:mandy_notes/utils/my_button_small.dart';
+import 'package:mandy_notes/pages/onboard/intro_screens/intro_page_1.dart';
+import 'package:mandy_notes/pages/onboard/intro_screens/intro_page_2.dart';
+import 'package:mandy_notes/pages/onboard/intro_screens/intro_page_3.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class OnboardingPage extends StatefulWidget {
+class OnBoardingScreen extends StatefulWidget {
+  const OnBoardingScreen({super.key});
+
   @override
-  _OnboardingPageState createState() => _OnboardingPageState();
+  State<OnBoardingScreen> createState() => _OnBoardingScreenState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage> {
-  final List<OnboardingItem> _onboardingItems = [
-    OnboardingItem(
-      title: "Bienvenido",
-      description: "Esta es una aplicación de ejemplo.",
-      imageUrl: "http://localhost:8000/static/images/imagen1.jpg",
-    ),
-    OnboardingItem(
-      title: "Característica 1",
-      description: "Descubre la característica 1asdasdasd.",
-      imageUrl: "http://localhost:8000/static/images/imagen2.jpg",
-    ),
-    OnboardingItem(
-      title: "Característica 2",
-      description: "Explora la característica 2asdasdqrqwrqwrqwrqw.",
-      imageUrl: "http://localhost:8000/static/images/imagen3.jpg",
-    ),
-  ];
+class _OnBoardingScreenState extends State<OnBoardingScreen> {
+  // Controller para trackear en que pantalla estamos
+  PageController _controller = PageController();
 
-  int _currentIndex = 0;
-  bool _boolLogin = false;
-
-  void _nextPage() {
-    setState(() {
-      if (_currentIndex == 2) {
-        print('IR A LOGIN');
-        _currentIndex = 0;
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else {
-        _currentIndex = _currentIndex + 1;
-      }
-    });
-  }
+  //Para controlar si estamos en la última página
+  bool onLastPage = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          OnboardingItemWidget(_onboardingItems[_currentIndex]),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [myButtonSmall(texto: 'Siguiente', accion: _nextPage), Container(width: 20)],
-              ),
-              SizedBox(height: 20.0),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class OnboardingItem {
-  final String title;
-  final String description;
-  final String imageUrl;
-
-  OnboardingItem({required this.title, required this.description, required this.imageUrl});
-}
-
-class OnboardingItemWidget extends StatelessWidget {
-  final OnboardingItem item;
-
-  OnboardingItemWidget(this.item);
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.topCenter,
+        body: Stack(
       children: [
-        Image.network(item.imageUrl, fit: BoxFit.cover),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+        PageView(
+          controller: _controller,
+          onPageChanged: (index) {
+            setState(() {
+              onLastPage = (index == 2);
+            });
+          },
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text(item.title, textAlign: TextAlign.center, style: TextStyle(color: Colors.amber, fontSize: 24.0, fontWeight: FontWeight.bold))],
-            ),
-            SizedBox(height: 10.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(item.description, textAlign: TextAlign.center, style: TextStyle(color: Colors.amber, fontSize: 16.0)),
-              ],
-            ),
-            SizedBox(height: 80.0),
+            IntroPage1(),
+            IntroPage2(),
+            IntroPage3(),
           ],
         ),
+        Container(
+          alignment: Alignment(0, 0.75),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              //SKIP
+              GestureDetector(
+                child: Text('skip'),
+                onTap: () => {
+                  _controller.jumpToPage(2),
+                },
+              ),
+
+              //DOT INDICATOR
+              SmoothPageIndicator(
+                controller: _controller,
+                count: 3,
+                effect: WormEffect(dotColor: Colors.pink.shade900, activeDotColor: Colors.pink.shade500),
+              ),
+
+              //NEXT or done
+              onLastPage
+                  ? GestureDetector(
+                      child: Text('done'),
+                      onTap: () => {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyLoginPage()),
+                        ).whenComplete(() => _controller.jumpToPage(0)),
+                      },
+                    )
+                  : GestureDetector(
+                      child: Text('next'),
+                      onTap: () => {
+                        _controller.nextPage(
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.easeIn,
+                        )
+                      },
+                    ),
+            ],
+          ),
+        )
       ],
-    );
+    ));
   }
 }

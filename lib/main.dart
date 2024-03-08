@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mandy_notes/pages/auth/login_page.dart';
 import 'package:mandy_notes/pages/onboard/onboard_main.dart';
 // import 'package:mandy_notes/pages/calendar/calendar_main.dart';
 
@@ -16,11 +17,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: OnboardingPage(),
+      home: OnBoardingScreen(),
+      // home: MyLoginPage(),
     );
   }
 }
