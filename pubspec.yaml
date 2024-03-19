@@ -39,6 +39,7 @@ dependencies:
   flutter_rounded_date_picker: ^3.0.4
   flutter_svg: ^2.0.7
   smooth_page_indicator: ^1.1.0
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
