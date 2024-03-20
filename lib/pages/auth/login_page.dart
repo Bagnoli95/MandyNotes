@@ -9,6 +9,7 @@ import 'package:mandy_notes/utils/my_text_form.dart';
 import 'package:mandy_notes/utils/text_inline.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:rive/rive.dart';
 
 class MyLoginPage extends StatefulWidget {
   MyLoginPage({super.key});
@@ -21,11 +22,25 @@ class _MyLoginPageState extends State<MyLoginPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passController = TextEditingController();
 
-  bool _isLoading = false;
+  bool isShowLoading = false;
+  bool isShowConfetti = false;
+
+  late SMITrigger check;
+  late SMITrigger error;
+  late SMITrigger reset;
+
+  late SMITrigger confetti;
+
+  StateMachineController getRiveController(Artboard artboard) {
+    StateMachineController? controller = StateMachineController.fromArtboard(artboard, "State Machine 1");
+    artboard.addController(controller!);
+    return controller;
+  }
 
   Future<void> _login() async {
     setState(() {
-      _isLoading = true;
+      isShowLoading = true;
+      isShowConfetti = true;
     });
 
     // CONSUMIR WS PARA VALIDAR EL LOGIN
@@ -49,16 +64,44 @@ class _MyLoginPageState extends State<MyLoginPage> {
       print(responseData['token']);
 
       if (responseData['codReturn'] == '0') {
+        // Animacion de success
+        check.fire();
+
         print('EXITO!');
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(responseData['token']),
           backgroundColor: Colors.green,
         ));
+
+        // Cerrar la animacion
+        Future.delayed(Duration(seconds: 2), () {
+          setState(() {
+            isShowLoading = false;
+          });
+          confetti.fire();
+          Future.delayed(Duration(seconds: 1), () {
+            setState(() {
+              isShowConfetti = false;
+            });
+            // Navegar hasta el Home
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MyHomeScreen(), maintainState: true), (Route<dynamic> route) => false);
+          });
+        });
       } else {
+        // Animacion de error
+        error.fire();
+
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(responseData['txtReturn']),
           backgroundColor: Colors.red,
         ));
+
+        // Cerrar la animacion
+        Future.delayed(Duration(seconds: 2), () {
+          setState(() {
+            isShowLoading = false;
+          });
+        });
       }
     } else {
       // HUBO UN PROBLEMA CON LA RESPUESTA DEL SERVIDOR. Hay que mostrar un mensaje de error.
@@ -68,10 +111,6 @@ class _MyLoginPageState extends State<MyLoginPage> {
         backgroundColor: Colors.red,
       ));
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
@@ -146,18 +185,51 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 ),
               ),
             ),
-            _isLoading
-                ? Positioned.fill(
-                    child: Container(
-                      color: Colors.black.withOpacity(0.5),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
+            isShowLoading
+                ? CustomPositioned(
+                    child: RiveAnimation.asset('assets/riveAnimations/check.riv', onInit: (artboard) {
+                    StateMachineController controller = getRiveController(artboard);
+                    check = controller.findSMI("Check") as SMITrigger;
+                    error = controller.findSMI("Error") as SMITrigger;
+                    reset = controller.findSMI("Reset") as SMITrigger;
+                  }))
+                : const SizedBox(),
+            isShowConfetti
+                ? CustomPositioned(
+                    child: Transform.scale(
+                    scale: 6,
+                    child: RiveAnimation.asset('assets/riveAnimations/webcam-curve.riv', onInit: (artboard) {
+                      StateMachineController controller = getRiveController(artboard);
+                      confetti = controller.findSMI("Trigger explosion") as SMITrigger;
+                    }),
+                  ))
+                : const SizedBox(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CustomPositioned extends StatelessWidget {
+  const CustomPositioned({super.key, required this.child, this.size = 100});
+
+  final Widget child;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Column(
+        children: [
+          Spacer(),
+          SizedBox(
+            height: size,
+            width: size,
+            child: child,
+          ),
+          Spacer(flex: 2),
+        ],
       ),
     );
   }
